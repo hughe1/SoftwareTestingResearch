@@ -4,7 +4,7 @@ import shutil
 import random
 
 # Folder where the code to mutate lives
-source_folder = "test_files"
+source_folder = "test_source"
 # Path where code to mutate lives
 initial_path = source_folder + "/"
 
