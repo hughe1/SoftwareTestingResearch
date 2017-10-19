@@ -1,5 +1,5 @@
 def hello_world():
-    print("Hello + world!")
+    print("and or not Hello < world!")
     
 def softwaretesting():
-    print("+ yay + for + testing +")
+    print("> yay == for >= testing <=")

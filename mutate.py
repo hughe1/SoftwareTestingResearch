@@ -13,11 +13,25 @@ initial_path = source_folder + "/"
 # Ouput path
 output_path = "output/"
 
-# TODO: turn into a list of operators, not just single hardcoded ones
-# Operator to mutate
-op_before = "+"
-# Operator to mutate to
-op_after = "-"
+# Set of arithmetic operators
+arith_set = set(["<=","<",">=",">","=="])
+# Set of logical operators
+logic_set = set(["or","and","not"])
+# List of all operators to choose from
+all_ops = list(arith_set | logic_set)
+# List of arithemtic and logical sets
+set_list = [arith_set, logic_set]
+
+# Given an operator, get a random mutation
+def get_mutation(op):
+    for s in set_list:
+        if op in s:
+            # Choose randomly from the set difference of the operator and set it
+            # came from
+            op_after = random.choice(list(s - set([op])))
+            return op_after
+    # If a mutation can't be found just return the original operator
+    return op
 
 # List of files in the folder of code to mutate
 file_list = [f for f in listdir(initial_path) if isfile(join(initial_path, f))]
@@ -28,11 +42,20 @@ file_list = [f for f in listdir(initial_path) if isfile(join(initial_path, f))]
 # new_file -> the file that is being written
 def mutate_file(file_lines, new_file):
     found_indexes = []
-    # Check how many op_before operators exist in file, append the indexes
-    # of lines with an operator in them to a list
-    for i in range(0, len(file_lines)):
-        if op_before in file_lines[i]:
-            found_indexes.append(i)
+    # Shuffle the operator list
+    random.shuffle(all_ops)
+    # If an op exists in the file, set it as the operator to mutate
+    for op in all_ops:
+        op_before = op
+        # Check how many op_before operators exist in file, append the indexes
+        # of lines with an operator in them to a list
+        for i in range(0, len(file_lines)):
+            if op_before in file_lines[i]:
+                found_indexes.append(i)
+        if len(found_indexes) > 0:
+            break
+    # Get mutated operation based on op chosen
+    op_after = get_mutation(op_before)
     # If an operator was found, choose a random index of the line that will
     # be mutated
     if len(found_indexes) > 0:
@@ -43,7 +66,7 @@ def mutate_file(file_lines, new_file):
         # op_afer on this line
         for i in range(0,len(file_lines)):
             if i == index_m:
-                new_line = file_lines[i].replace(op_before,op_after)
+                new_line = file_lines[i].replace(op_before,op_after, 1)
                 new_file.write(new_line)
             else:
                 new_file.write(file_lines[i])
@@ -52,12 +75,14 @@ def mutate_file(file_lines, new_file):
     # If no operator in this file are found, return error
     return -1
 
+# Copy from_path to to_path even if it already exists
 def copy_and_overwrite(from_path, to_path):
     if os.path.exists(to_path):
         shutil.rmtree(to_path)
     shutil.copytree(from_path, to_path)
-        
 
+
+#################### MAIN LOOP TO PRODUCE NEW TEST SUITES ####################
 # c - number of mutations to perform, and hence new sets of files
 c = 0
 while c < NUMBER_MUTATIONS:
