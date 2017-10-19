@@ -18,6 +18,29 @@
 	- Mutations were purely logical and arithmetic.
 5. We then ran each set of 50 test cases against each of the mutated programs, recording whether each test case set detects the fault; ie, if any test case fails.
 
+
+### Todo
+
+1. Finish `mutate.py`
+2. Write a driver script. It should do the following:
+	i) Runs `mutate.py` to generate the mutants for a program
+		- This creates a folder containing multiple test suite files (test_suite_01.py, test_suite_02.py, ...)
+	ii) Runs `create_suites.py` to create the test suites for a program
+		- This creates a folder of containing multiple mutated program directories (mutant_program_01, mutant_program_02)
+		- Each of these folders contains a duplicate of the entire program and all its files, with one mutation
+	iii) For each test suite file:
+		a) Calculates the branch coverage of the test suite on the ORIGINAL, unmutated program (using coverage.py)
+		b) Calculates the number of test cases in the test suite file (naively, count number of times "def test_" occurs in the file)
+		c) Runs the test suite on every single mutated program, recording whether all tests pass, or if one or more tests fail (if one or more test cases fail, the mutant is caught)
+	iv) Saves a file `results.csv` with the following headers
+			- Test suite # (ie test_suite_04)
+			- Coverage
+			- Number of test cases
+			- Number of mutants caught
+			- Total number of mutants
+			- Mutant score (caught/total mutants)
+		Each row corresponds to a single test suite file
+
    
 ### Mutation
 
