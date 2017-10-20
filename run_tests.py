@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile, join
 from mutate import run_mutation
 import subprocess
+import file_copy
 
 # List of dictionaries. Each dictionary will store the data for each test suite.
 record = []
@@ -10,7 +11,7 @@ NUMBER_MUTATIONS = 0
 
 # TODO: Create the test suites
 
-# Get test suites 
+# Get test suites
 test_path = "tests/"
 test_list = [t for t in listdir(test_path) if isfile(join(test_path, t))]
 test_number = len(test_list)
@@ -44,22 +45,24 @@ def parse_test_results(s):
 # location before it is mutated.
 c = 0
 while c <= NUMBER_MUTATIONS:
-    
+
     # Run coverage and get benchmark test results on initial source code
     if c < 1:
-        for suite in test_list:    
+        # Copy the source code over to a temporary folder
+        file_copy.copy_to_temp(source_folder)
+        for suite in test_list:
             # If the first round, calculate the coverage for the test suite
-            # TODO: Copy the source code over to a different file
             # Run coverage on the initial un-mutated files
             try:
+                # TODO: The naming convention for tests is "test_suite_1" etc.
                 subprocess.check_output(["coverage","run","--source",source_folder,"-m","py.test","tests/test_1.py"])
             except subprocess.CalledProcessError as e:
                 print e.output
             coverage_output = subprocess.check_output(["coverage","report"])
-            # Parse the coverage results 
+            # Parse the coverage results
             coverage = parse_coverage_results(coverage_output)
             # TODO: Store coverage results
-    
+
     # Do mutation and collect test results
     else:
         # This mutates the source code and gets the number of mutations
@@ -78,7 +81,7 @@ while c <= NUMBER_MUTATIONS:
             except subprocess.CalledProcessError as e:
                 print e.output
             i += 1
-            
+
             # TODO: Update records data structure with test results for suite
             # Store mutations and errors for each test suite in dictionary
             # entry["test_name"] = test_name
@@ -88,5 +91,5 @@ while c <= NUMBER_MUTATIONS:
             # entry["mut_score"] = mut_score
 
     c += 1
-    # TODO: Copy source code back
-    
+    # Copy source code back
+    file_copy.restore_from_temp(source_folder)
