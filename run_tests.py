@@ -63,7 +63,9 @@ while c <= NUMBER_MUTATIONS:
     # Do mutation and collect test results
     else:
         # This mutates the source code and gets the number of mutations
-        num_mutations = run_mutation
+        # Passing in 0 makes the mutator override source code instead of
+        # creating new files
+        num_mutations = run_mutation(0)
         # Run each test suite we have created
         # PROBLEM: Unit tests are running over codebase not just the mutated files
         i = 0
