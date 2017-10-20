@@ -2,10 +2,12 @@ from os import listdir
 from os.path import isfile, join
 from mutate import run_mutation
 import subprocess
+import re
 import file_copy
 
-# List of dictionaries. Each dictionary will store the data for each test suite.
-record = []
+# Dictionary of dictionaries with test suite name as the key.
+# Each dictionary will store the data for each test suite.
+record = {}
 # The number of mutations to perform
 NUMBER_MUTATIONS = 0
 
@@ -13,6 +15,7 @@ NUMBER_MUTATIONS = 0
 
 # Get test suites
 test_path = "tests/"
+# TODO: This is going to pick up the init files etc. startwith test is necessary
 test_list = [t for t in listdir(test_path) if isfile(join(test_path, t))]
 test_number = len(test_list)
 
@@ -25,7 +28,7 @@ source_folder = "test_source"
 def parse_coverage_results(s):
 
     # get last percentage in string
-    percent_string = (re.findall(“[0-9]*%$“, s))[0]
+    percent_string = (re.findall("[0-9]*%$", s))[0]
 
     # take the percentage off and convert to int
     return int(percent_string[:-1])
@@ -33,10 +36,10 @@ def parse_coverage_results(s):
 # takes a string (output from running test cases) and returns a tuple (f,p)
 # where f is number failed and p is number passed
 def parse_test_results(s):
-    failed_string = (re.findall(“[0-9]* failed”, s))[0]
-    passed_string = (re.findall(“[0-9]* passed”, s))[0]
-    failed_no = int((re.findall(“[0-9]*“, failed_string))[0])
-    passed_no = int((re.findall(“[0-9]*“, passed_string))[0])
+    failed_string = (re.findall("[0-9]* failed", s))[0]
+    passed_string = (re.findall("[0-9]* passed", s))[0]
+    failed_no = int((re.findall("[0-9]*", failed_string))[0])
+    passed_no = int((re.findall("[0-9]*", passed_string))[0])
     return (failed_no, passed_no)
 
 
@@ -54,42 +57,53 @@ while c <= NUMBER_MUTATIONS:
             # If the first round, calculate the coverage for the test suite
             # Run coverage on the initial un-mutated files
             try:
-                # TODO: The naming convention for tests is "test_suite_1" etc.
+                # TODO: FYI The naming convention from test divider is "test_suite_1" etc.
                 subprocess.check_output(["coverage","run","--source",source_folder,"-m","py.test","tests/test_1.py"])
             except subprocess.CalledProcessError as e:
-                print e.output
+                # Failure encountered
+                # print(e.output.decode("utf-8"))
+                pass
+
             coverage_output = subprocess.check_output(["coverage","report"])
+
             # Parse the coverage results
-            coverage = parse_coverage_results(coverage_output)
-            # TODO: Store coverage results
+            coverage = parse_coverage_results(coverage_output.decode("utf-8"))
 
-    # Do mutation and collect test results
-    else:
-        # This mutates the source code and gets the number of mutations
-        # Passing in 0 makes the mutator override source code instead of
-        # creating new files
-        num_mutations = run_mutation(0)
-        # Run each test suite we have created
-        # PROBLEM: Unit tests are running over codebase not just the mutated files
-        i = 0
-        for suite in test_list:
-            # Get the test name
-            test_name = "test_" + str(i) + ".py"
-            # Run tests using subprocess
-            try:
-                test_result = subprocess.check_output(["py.test","test_1.py"],cwd='tests')
-            except subprocess.CalledProcessError as e:
-                print e.output
-            i += 1
+            # Store coverage results
+            result = {}
+            result['coverage'] = coverage
 
-            # TODO: Update records data structure with test results for suite
-            # Store mutations and errors for each test suite in dictionary
-            # entry["test_name"] = test_name
-            # entry["num_tests"] = num_tests
-            # entry["num_muts_caught"] = num_muts_caught
-            # entry["total_muts"] = total_muts
-            # entry["mut_score"] = mut_score
+            record[suite] = result
+
+    # # Do mutation and collect test results
+    # else:
+    #     # This mutates the source code and gets the number of mutations
+    #     # Passing in 0 makes the mutator override source code instead of
+    #     # creating new files
+    #     num_mutations = run_mutation(0)
+    #     # Run each test suite we have created
+    #     # PROBLEM: Unit tests are running over codebase not just the mutated files
+    #     i = 0
+    #     for suite in test_list:
+    #         # Get the test name
+    #         test_name = "test_" + str(i) + ".py"
+    #         # Run tests using subprocess
+    #         try:
+    #             test_result = subprocess.check_output(["py.test","test_1.py"],cwd='tests')
+    #         except subprocess.CalledProcessError as e:
+    #             print(e.output.decode("utf-8"))
+    #         i += 1
+    #
+    #         # TODO: Update records data structure with test results for suite
+    #         # Store mutations and errors for each test suite in dictionary
+    #         # entry["test_name"] = test_name
+    #         # entry["num_tests"] = num_tests
+    #         # entry["num_muts_caught"] = num_muts_caught
+    #         # entry["total_muts"] = total_muts
+    #         # entry["mut_score"] = mut_score
 
     c += 1
     # Copy source code back
     file_copy.restore_from_temp(source_folder)
+
+print(record)
