@@ -94,8 +94,11 @@ def run_mutation(number_mutations):
         mutated = False
         # Same source files, not to be mutated
         src = source_folder
-        # Append iteration number to destination files
-        dest = output_path + source_folder + str(c+1)
+        # Append iteration number to destination files if more than one iter.
+        if c > 0:
+            dest = output_path + source_folder + str(c+1)
+        else:
+            dest = output_path + source_folder
         # Copy source files to new destination so they can be mutated
         copy_and_overwrite(src, dest)
         # shutil.copytree(src, dest)
