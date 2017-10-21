@@ -11,11 +11,15 @@ record = {}
 # The number of mutations to perform
 NUMBER_MUTATIONS = 10
 print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
+OUTPUT_FILENAME = "output.csv"
 
 # TODO: Create the test suites
+# subprocess.check_output(["python","divide_test_suite.py","tests"])
 
 # Path to where the tests are kept
 test_path = "tests/"
+# TODO: Changes to new_tests once divide test suite is implemented
+# test_path = "new_tests/"
 # Names of all files in test_path that start with 'test'
 test_list = [t for t in listdir(test_path) if (isfile(join(test_path, t)) and t.startswith('test', 0, 4))]
 # Number of test files
@@ -57,6 +61,30 @@ def count_test_cases(fname):
     tests = program.split("def test_")
     # -1 because the first token item in the splitted list isn't a test
     return len(tests) - 1
+
+# Saves output of test results to a csv file
+# Takes a dictionary of dictionaries, one representing each test suite and its
+# statistics.
+# Output csv has a header for each key in each sub-dictionary
+def save_output(d):
+	#initialise output string
+	s = ""
+	# print headers
+	headers = ["test_suite"] + d[d.keys()[0]].keys()
+	for header in headers:
+		s = s + header + ","
+	# print each row
+	for test_suite in d.keys():
+		s+='\n'
+		# add test_suite name to the row
+		s += test_suite + ","
+		# add all the header values to the row
+		row = d[test_suite]
+		for header in headers[1:]:
+			s += str(row[header]) + ","
+	# save the data to a file
+	output_file = open(OUTPUT_FILENAME,'w')
+	output_file.write(s)
 
 
 # This is the main loop. On the first round, it gets the coverage results for
@@ -160,3 +188,4 @@ while c <= NUMBER_MUTATIONS:
     file_copy.restore_from_temp(source_path)
 
 print(record)
+save_output(record)
