@@ -129,7 +129,7 @@ while c <= NUMBER_MUTATIONS:
     else:
         print("----------Mutation round: " + str(c) + " -----------------")
         # This attempts to mutated the source code
-        mutation_performed = run_mutation()
+        mutation_performed = run_mutation(source_folder)
         print("Mutation performed: " + str(mutation_performed))
         # Run each test suite we have created
         for suite_fname in test_list:

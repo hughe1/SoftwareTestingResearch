@@ -4,13 +4,6 @@ import os
 import shutil
 import random
 
-# Folder where the code to mutate lives
-source_folder = "test_source"
-# Path where code to mutate lives
-initial_path = source_folder + "/"
-# Ouput path
-output_path = "output/"
-
 # Set of arithmetic operators
 arith_set = set(["<=","<",">=",">","=="])
 # Set of logical operators
@@ -19,8 +12,6 @@ logic_set = set(["or","and","not"])
 all_ops = list(arith_set | logic_set)
 # List of arithemtic and logical sets
 set_list = [arith_set, logic_set]
-# List of files in the folder of code to mutate
-file_list = [f for f in listdir(initial_path) if (isfile(join(initial_path, f)) and f.startswith('file', 0, 4))]
 
 # Given an operator, get a random mutation
 def get_mutation(op):
@@ -87,7 +78,9 @@ def copy_and_overwrite(from_path, to_path):
 
 
 #################### PRODUCE NEW TEST SUITES ####################
-def run_mutation():
+def run_mutation(source_folder):
+    source_path = source_folder + "/"
+    file_list = [f for f in listdir(source_path) if (isfile(join(source_path, f)) and f.startswith('file', 0, 4))]
     # Keep record for if a mutation has occurred in iteration
     mutated = False
     # Same source files, not to be mutated
