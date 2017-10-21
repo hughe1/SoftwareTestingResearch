@@ -27,16 +27,20 @@ def get_mutation(op):
 # If the before operator exists in a list of lines, change a random op_before 
 # into a op_after and return a new file.
 # file_lines -> the list of lines to check from the read file
-# new_file -> the file that is being written
+# new_file -> the new file that is being written
 def mutate_file(file_lines, new_file):
     found_indexes = []
     # Shuffle the operator list
     random.shuffle(all_ops)
     # If an op exists in the file, set it as the operator to mutate
     for op in all_ops:
+        # Get a valid mutation based on op
         op_after = get_mutation(op)
         if op in list(logic_set):
+            # Add spaces to ensure only logical op is picked up
+            # e.g. so "and" isn't mutated in the word "band"
             op_before = " " + op + " "
+            op_after = " " + op_after + " "
         else:
             op_before = op
         # Check how many op_before operators exist in file, append the indexes
@@ -44,11 +48,13 @@ def mutate_file(file_lines, new_file):
         for i in range(0, len(file_lines)):
             if op_before in file_lines[i]:
                 found_indexes.append(i)
+        # If len > 0, we know we found that operator in list and can stop
         if len(found_indexes) > 0:
             break
     # Get mutated operation based on op chosen
     # op_after = get_mutation(op_before)
     print("Mutation: " + op_before + "   to   " + op_after) 
+    # Catch the case that a mutation is not performed
     if op_after == op_before:
         return -1
     # If an operator was found, choose a random index of the line that will
@@ -70,15 +76,9 @@ def mutate_file(file_lines, new_file):
     # If no operator in this file are found, return error
     return -1
 
-# Copy from_path to to_path even if it already exists
-def copy_and_overwrite(from_path, to_path):
-    if os.path.exists(to_path):
-        shutil.rmtree(to_path)
-    shutil.copytree(from_path, to_path)
-
-
-
-#################### PRODUCE NEW TEST SUITES ####################
+# Run the mutation.
+# NOTE: This mutates the source code passed in!!! Don't call this if not
+# using source control!
 def run_mutation(source_folder):
     source_path = source_folder + "/"
     file_list = [f for f in listdir(source_path) if (isfile(join(source_path, f)) and (not f.startswith('_')) and f.endswith('.py'))]
@@ -86,12 +86,6 @@ def run_mutation(source_folder):
     mutated = False
     # Same source files, not to be mutated
     src = source_folder
-    # dest = output_path + source_folder
-    
-    # Copy source files to new destination so they can be mutated
-    # copy_and_overwrite(src, dest)
-    # shutil.copytree(src, dest)
-    
     # Keep a counter of how many files have been tried
     file_length = len(file_list)
     # TODO: This loop will stop once the counter reaches the number of files 
@@ -103,13 +97,13 @@ def run_mutation(source_folder):
         # Pick a random file to mutate
         i = random.randint(0, file_length-1)
         
-        print("File list: " + str(file_list))
-        print("File: " + str(file_list[i]))
+        # print("File list: " + str(file_list))
+        # print("File: " + str(file_list[i]))
         old_file = open(src + "/" + file_list[i])
         
         # Store old file as list of lines
         lines = old_file.readlines()
-        print(lines)
+        # print(lines)
         # Open a new file that can be written to
         new_file = open(src + "/" + file_list[i], 'w')
         try:
