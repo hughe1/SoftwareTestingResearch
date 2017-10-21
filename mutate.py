@@ -89,7 +89,7 @@ def run_mutation(number_mutations):
     mutation_count = 0
     # c - number of mutations to perform, and hence new sets of files
     c = 0
-    while c < number_mutations:
+    while c <= number_mutations:
         # Keep record for if a mutation has occurred in iteration
         mutated = False
         # Same source files, not to be mutated
@@ -99,6 +99,7 @@ def run_mutation(number_mutations):
             dest = output_path + source_folder + str(c+1)
         else:
             dest = output_path + source_folder
+            # dest = source_folder
         # Copy source files to new destination so they can be mutated
         copy_and_overwrite(src, dest)
         # shutil.copytree(src, dest)
@@ -134,7 +135,6 @@ def run_mutation(number_mutations):
         if not mutated:
             print("No mutation applied for " + str(dest))
 
-    print("MUTATIONS PERFORMED: " + str(mutation_count))
     return mutation_count
  
 if __name__ == "__main__":

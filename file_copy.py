@@ -28,7 +28,7 @@ def restore_from_temp(src_path):
 
     # copy_tree used to allow for merging into existing folders (with sub-directories)
     copy_tree(temp_name, src_path)
-    rmtree(temp_name)
+    # rmtree(temp_name)
 
 
 # # Test stuff
