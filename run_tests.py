@@ -44,7 +44,8 @@ def parse_test_results(s):
     try:
         failed_string = (re.findall("[0-9]* failed", s))[0]
         failed_no = int((re.findall("[0-9]*", failed_string))[0])
-    except:
+    except Exception, e:
+        print(str(e))
         failed_no = 0
     try:
         passed_string = (re.findall("[0-9]* passed", s))[0]

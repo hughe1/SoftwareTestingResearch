@@ -75,31 +75,7 @@ def copy_and_overwrite(from_path, to_path):
     if os.path.exists(to_path):
         shutil.rmtree(to_path)
     shutil.copytree(from_path, to_path)
-    
 
-# Saves output of test results to a csv file
-# Takes a dictionary of dictionaries, one representing each test suite and its
-# statistics.
-# Output csv has a header for each key in each sub-dictionary
-def save_output(d):
-	#initialise output string
-	s = ""
-	# print headers
-	headers = ["test_suite"] + d[d.keys()[0]].keys()
-	for header in headers:
-		s = s + header + ","
-	# print each row
-	for test_suite in d.keys():
-		s+='\n'
-		# add test_suite name to the row
-		s += test_suite + ","
-		# add all the header values to the row
-		row = d[test_suite]
-		for header in headers[1:]:
-			s += str(row[header]) + ","
-	# save the data to a file
-	output_file = open(OUTPUT_FILENAME,'w')
-	output_file.write(s)
 
 
 #################### PRODUCE NEW TEST SUITES ####################
