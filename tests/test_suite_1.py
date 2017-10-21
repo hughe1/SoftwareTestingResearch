@@ -32,4 +32,4 @@ class Tests3:
         
     def test_9(self):
         result = logical()
-        assert result == "and or not"
+        assert result == " and or not "

@@ -10,7 +10,7 @@ class Tests1:
     
     def test_10(self):
         result = arithmetic()
-        assert result == "< <= > >= == !="
+        assert result == " < <= > >= == != "
     
 class Tests2:
     def test_2(self):

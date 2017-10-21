@@ -1,5 +1,5 @@
 def logical():
-    return "and or not"
+    return " and or not "
     
 def arithmetic():
-    return "< <= > >= == !="
+    return " < <= > >= == != "

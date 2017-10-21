@@ -42,8 +42,11 @@ def parse_test_results(s):
         failed_no = int((re.findall("[0-9]*", failed_string))[0])
     except:
         failed_no = 0
-    passed_string = (re.findall("[0-9]* passed", s))[0]
-    passed_no = int((re.findall("[0-9]*", passed_string))[0])
+    try:
+        passed_string = (re.findall("[0-9]* passed", s))[0]
+        passed_no = int((re.findall("[0-9]*", passed_string))[0])
+    except:
+        passed_no = 0
     return (failed_no, passed_no)
 
 # returns the number of test cases in a file
@@ -125,15 +128,14 @@ while c <= NUMBER_MUTATIONS:
     # Do mutation and collect test results
     else:
         print("----------Mutation round: " + str(c) + " -----------------")
-        # This mutates the source code and gets the number of mutations
-        # Passing in 0 makes the mutator override source code instead of
-        # creating new files
-        num_mutations = run_mutation(0)
-        print("Number of mutations performed: " + str(num_mutations))
+        # This attempts to mutated the source code
+        mutation_performed = run_mutation()
+        print("Mutation performed: " + str(mutation_performed))
         # Run each test suite we have created
         for suite_fname in test_list:
             # Increment the count of mutations
-            record[suite_fname]['num_muts'] = record[suite_fname]['num_muts'] + num_mutations
+            if mutation_performed:
+                record[suite_fname]['num_muts'] = record[suite_fname]['num_muts'] + 1
             # Run tests using subprocess
             print("Running tests on: " + suite_file)
             try:
