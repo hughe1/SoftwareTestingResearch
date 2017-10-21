@@ -9,7 +9,7 @@ import file_copy
 # Each dictionary will store the data for each test suite.
 record = {}
 # The number of mutations to perform
-NUMBER_MUTATIONS = 4
+NUMBER_MUTATIONS = 20
 print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
 OUTPUT_FILENAME = "output.csv"
 
@@ -50,20 +50,19 @@ def parse_test_results(s):
         failed_string = failed_list[len(failed_list)-1]
         failed_no = int((re.findall("[0-9]*", failed_string))[0])
     except Exception, e:
-        print("EXCEPTION - Parse 'failed':" + str(e))
+        # print("EXCEPTION - Parse 'failed':" + str(e))
         failed_no = 0
     try:
-        passed_list = (re.findall("[0-9]* passed", s))
-        passed_string = passed_list[len(passed_list)-1]
+        passed_string = (re.findall("[0-9]* passed", s))[0]
         passed_no = int((re.findall("[0-9]*", passed_string))[0])
     except Exception, e:
-        print("EXCEPTION - Parse 'passed':" + str(e))
+        # print("EXCEPTION - Parse 'passed':" + str(e))
         passed_no = 0
     try:
         error_string = (re.findall("[0-9]* error in", s))[0]
         error_no = int((re.findall("[0-9]*", error_string))[0])            
     except Exception, e:
-        # print("EXCEPTION - Parse 'errors':" + str(e))
+        print("EXCEPTION - Parse 'errors':" + str(e))
         error_no = 0
     return (failed_no, passed_no, error_no)
 
@@ -194,7 +193,7 @@ while c <= NUMBER_MUTATIONS:
                 test_result = subprocess.check_output(["py.test","--tb=line",suite_fname],cwd='tests')
             except subprocess.CalledProcessError as e:
                 test_result = e.output.decode("utf-8")
-            
+            # print(test_result)
             # Parse the results for the mutated source code.
             mutated_results = parse_test_results(test_result)
             

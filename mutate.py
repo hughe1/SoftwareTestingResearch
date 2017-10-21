@@ -36,13 +36,15 @@ def mutate_file(file_lines, new_file):
     for op in all_ops:
         # Get a valid mutation based on op
         op_after = get_mutation(op)
-        if op in list(logic_set):
-            # Add spaces to ensure only logical op is picked up
-            # e.g. so "and" isn't mutated in the word "band"
-            op_before = " " + op + " "
-            op_after = " " + op_after + " "
-        else:
-            op_before = op
+        # if op in list(logic_set):
+
+        # Add spaces to ensure only logical op is picked up
+        # e.g. so "and" isn't mutated in the word "band"
+        op_before = " " + op + " "
+        op_after = " " + op_after + " "
+
+        # else:
+        #     op_before = op
         # Check how many op_before operators exist in file, append the indexes
         # of lines with an operator in them to a list
         for i in range(0, len(file_lines)):
@@ -108,8 +110,8 @@ def run_mutation(source_folder):
         new_file = open(src + "/" + file_list[i], 'w')
         print("FILE LIST[i]: " + file_list[i])
         try:
-            # Try mutating the new file (5 times)
-            for i in range(0,1):
+            # Try mutating the new file (2 times)
+            for l in range(0,2):
                 new_file = mutate_file(lines, new_file)
             new_file.close()
             mutated = True
