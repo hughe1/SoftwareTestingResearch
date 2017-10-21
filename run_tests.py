@@ -9,7 +9,7 @@ import file_copy
 # Each dictionary will store the data for each test suite.
 record = {}
 # The number of mutations to perform
-NUMBER_MUTATIONS = 10
+NUMBER_MUTATIONS = 4
 print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
 OUTPUT_FILENAME = "output.csv"
 
@@ -50,17 +50,20 @@ def parse_test_results(s):
         failed_string = failed_list[len(failed_list)-1]
         failed_no = int((re.findall("[0-9]*", failed_string))[0])
     except Exception, e:
-        print(str(e))
+        print("EXCEPTION - Parse 'failed':" + str(e))
         failed_no = 0
     try:
-        passed_string = (re.findall("[0-9]* passed", s))[0]
+        passed_list = (re.findall("[0-9]* passed", s))
+        passed_string = passed_list[len(passed_list)-1]
         passed_no = int((re.findall("[0-9]*", passed_string))[0])
-    except:
+    except Exception, e:
+        print("EXCEPTION - Parse 'passed':" + str(e))
         passed_no = 0
     try:
         error_string = (re.findall("[0-9]* error in", s))[0]
         error_no = int((re.findall("[0-9]*", error_string))[0])            
-    except:
+    except Exception, e:
+        # print("EXCEPTION - Parse 'errors':" + str(e))
         error_no = 0
     return (failed_no, passed_no, error_no)
 
@@ -172,6 +175,7 @@ while c <= NUMBER_MUTATIONS:
 
     # Do mutation and collect test results.
     else:
+        mut_error = False
         print("----------Mutation round: " + str(c) + " -----------------")
         # This attempts to mutate the source code. Run_mutation returns a bool
         # where true if a mutation is performed.
@@ -179,6 +183,7 @@ while c <= NUMBER_MUTATIONS:
         print("Mutation performed: " + str(mutation_performed))
         # Run each test suite we have created
         for suite_fname in test_list:
+            suite_file = test_path + suite_fname
             # Increment the count of mutations if one is performed.
             if mutation_performed:
                 record[suite_fname]['num_muts'] = record[suite_fname]['num_muts'] + 1
@@ -198,8 +203,9 @@ while c <= NUMBER_MUTATIONS:
             mutated_failed = mutated_results[0]
             # Print test result if failed_no is 0. This is for debugging purposes.
             # If number of mutations failed is 0, it's likely an error has occured.
-            if mutated_failed == 0:
+            if (mutated_failed == 0) and (not mut_error) :
                 print("--------------TEST RESULTS:---------------" + str(test_result))
+                mut_error = True
             
             print("***Mutation failures vs initial failures***")
             print("Mutated failures: " + str(mutated_failed) + ", Initial failures: " + str(record[suite_fname]['bench_failed']))

@@ -7,7 +7,7 @@ import random
 # Set of arithmetic operators
 arith_set = set(["<=","<",">=",">","=="])
 # Set of logical operators
-logic_set = set(["or","and","not"])
+logic_set = set(["or","and"])
 # List of all operators to choose from
 all_ops = list(arith_set | logic_set)
 # List of arithemtic and logical sets
@@ -92,7 +92,7 @@ def run_mutation(source_folder):
     # that we have tried to mutate. It doesn't check that all files have been
     # tried, however. This should be implemented.
     j = 0
-    while j < file_length:
+    while j < (file_length / 4):
         j += 1
         # Pick a random file to mutate
         i = random.randint(0, file_length-1)
@@ -106,14 +106,16 @@ def run_mutation(source_folder):
         # print(lines)
         # Open a new file that can be written to
         new_file = open(src + "/" + file_list[i], 'w')
+        print("FILE LIST[i]: " + file_list[i])
         try:
-            # Try mutating the new file
-            new_file = mutate_file(lines, new_file)
+            # Try mutating the new file (5 times)
+            for i in range(0,1):
+                new_file = mutate_file(lines, new_file)
             new_file.close()
             mutated = True
             print("Mutation on " + file_list[i] + " successful.")
             # If a file mutation is successful, move to next test suite
-            break
+            # break
         except Exception, e:
             print("Exception: " + str(e))
             # If the file cannot be mutated, try more files
