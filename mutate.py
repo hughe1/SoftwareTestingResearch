@@ -80,7 +80,7 @@ def copy_and_overwrite(from_path, to_path):
 #################### PRODUCE NEW TEST SUITES ####################
 def run_mutation(source_folder):
     source_path = source_folder + "/"
-    file_list = [f for f in listdir(source_path) if (isfile(join(source_path, f)) and f.startswith('file', 0, 4))]
+    file_list = [f for f in listdir(source_path) if (isfile(join(source_path, f)) and f.startswith('file', 0, 4) and f.endswith('.py'))]
     # Keep record for if a mutation has occurred in iteration
     mutated = False
     # Same source files, not to be mutated

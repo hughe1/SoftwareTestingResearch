@@ -9,7 +9,7 @@ import file_copy
 # Each dictionary will store the data for each test suite.
 record = {}
 # The number of mutations to perform
-NUMBER_MUTATIONS = 2
+NUMBER_MUTATIONS = 10
 print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
 
 # TODO: Create the test suites
