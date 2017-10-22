@@ -1,9 +1,22 @@
+# Runs provided test suites over mutated source code to analyse the 
+# effectiveness of the test suite in "catching" the mutations in the source
+# code. It specifically looks at the number of test cases in each test suite
+# and the coverage.
+# Written for Software testing and reliability 2017
+# By Matt Perrott
+# 19/10/2017
+
+# Usage:
+#  
+
 from os import listdir
 from os.path import isfile, join
 from mutate import run_mutation
 import subprocess
 import re
 import file_copy
+
+################################################################################
 
 # Dictionary of dictionaries with test suite name as the key.
 # Each dictionary will store the data for each test suite.
@@ -12,6 +25,8 @@ record = {}
 NUMBER_MUTATIONS = 20
 print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
 OUTPUT_FILENAME = "output.csv"
+
+################################################################################
 
 # TODO: Create the test suites. This currently has to be done manually.
 # subprocess.check_output(["python","divide_test_suite.py","tests"])

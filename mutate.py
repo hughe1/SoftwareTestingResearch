@@ -1,8 +1,18 @@
+# Mutates python code by changing arithmetic and logical operators.
+# Written for Software testing and reliability 2017
+# By Matt Perrott
+# 19/10/2017
+
+# Usage:
+#  
+
 from os import listdir
 from os.path import isfile, join
 import os
 import shutil
 import random
+
+###############################################################################
 
 # Set of arithmetic operators
 arith_set = set(["<=","<",">=",">","=="])
@@ -12,6 +22,8 @@ logic_set = set(["or","and"])
 all_ops = list(arith_set | logic_set)
 # List of arithemtic and logical sets
 set_list = [arith_set, logic_set]
+
+###############################################################################
 
 # Given an operator, get a random mutation
 def get_mutation(op):
@@ -38,7 +50,7 @@ def mutate_file(file_lines, new_file):
         op_after = get_mutation(op)
         # if op in list(logic_set):
 
-        # Add spaces to ensure only logical op is picked up
+        # Add spaces to ensure only op is picked up
         # e.g. so "and" isn't mutated in the word "band"
         op_before = " " + op + " "
         op_after = " " + op_after + " "
