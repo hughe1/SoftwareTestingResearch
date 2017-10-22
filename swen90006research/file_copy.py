@@ -1,3 +1,10 @@
+# Provides functions to copy files to a temporary directory, and then to restore
+# them back.
+#
+# Written for Software testing and reliability 2017
+# By Annie Zhou
+# 17/10/2017
+
 from distutils.dir_util import copy_tree
 from shutil import rmtree, copytree
 import sys, os

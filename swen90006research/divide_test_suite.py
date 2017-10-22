@@ -1,14 +1,13 @@
 # Creates new test files based on a test suite contained in a directory
 # Written for Software testing and reliability 2017
 # By Hugh Edwards & Annie Zhou
-# 19/10/2017
+# 15/10/2017
 
 # Usage:
 #   provide the existing test file directory as argument
 #	Set parameters
 #	Run the file
 #	New test classes will be generated in a directory called "new_tests"
-
 
 import os
 import sys

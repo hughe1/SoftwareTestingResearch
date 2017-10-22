@@ -2,12 +2,22 @@
 # effectiveness of the test suite in "catching" the mutations in the source
 # code. It specifically looks at the number of test cases in each test suite
 # and the coverage.
+#
 # Written for Software testing and reliability 2017
 # By Matt Perrott
-# 19/10/2017
+# 20/10/2017
 
 # Usage:
-#  
+#  Choose the folder you'd like to mutate (source_folder)
+#  Choose where the tests live (test_path) - e.g. "tests/"
+#  Choose the number of mutation "rounds" to perform
+#  Put this file inside the open source program you would like to test, along
+#  with "file_copy.py" and "mutate.py"
+#  CD into the root of the program you would like to test
+#  Run "python run_tests.py" from command line
+
+# NOTE: We refer to mutation "round" because of the fact we are actually
+# performing multiple mutations at a time.
 
 from os import listdir
 from os.path import isfile, join
@@ -17,38 +27,37 @@ import re
 import file_copy
 
 ################################################################################
+# Parameters
+################################################################################
+
+# The number of mutations to perform
+NUMBER_MUTATIONS = 20
+
+# Set output filename
+OUTPUT_FILENAME = "output.csv"
+
+# NOTE: Use the same folder name as the repository of the program under test
+# uses. Replace the tests that are in there with the create test suites.
+test_folder = "tests"
+
+# The source code that you would like to mutate.
+source_folder = "httpie"
+
+################################################################################
+
+source_path = source_folder + "/"
+test_path = test_folder + "/"
+
+print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
 
 # Dictionary of dictionaries with test suite name as the key.
 # Each dictionary will store the data for each test suite.
 record = {}
-# The number of mutations to perform
-NUMBER_MUTATIONS = 20
-print("Number of mutations to perform: " + str(NUMBER_MUTATIONS))
-OUTPUT_FILENAME = "output.csv"
-
-################################################################################
-
-# TODO: Create the test suites. This currently has to be done manually.
-# subprocess.check_output(["python","divide_test_suite.py","tests"])
-
-# Path to where the tests are kept. All tests must be placed in this folder
-# manually.
-# NOTE: Use the same folder name as the repository of the program under test
-# uses. Replace the tests that are in there with the create test suites.
-test_path = "tests/"
-
-# TODO: Changes to new_tests if divide_test_suite is implemented
-# test_path = "new_tests/"
 
 # Names of all files in test_path that start with 'test'
 test_list = [t for t in listdir(test_path) if (isfile(join(test_path, t)) and t.startswith('test', 0, 4))]
 # Number of test files
 test_number = len(test_list)
-
-# Source code to test
-# NOTE: MUST BE SET MANUALLY FOR EACH PROGRAM. This is just an example.
-source_folder = "httpie"
-source_path = source_folder + "/"
 
 # Takes a string (output from running coverage.py) and returns an int
 # Representing rounded percentage statement coverage.
@@ -65,19 +74,16 @@ def parse_test_results(s):
         failed_string = failed_list[len(failed_list)-1]
         failed_no = int((re.findall("[0-9]*", failed_string))[0])
     except Exception, e:
-        # print("EXCEPTION - Parse 'failed':" + str(e))
         failed_no = 0
     try:
         passed_string = (re.findall("[0-9]* passed", s))[0]
         passed_no = int((re.findall("[0-9]*", passed_string))[0])
     except Exception, e:
-        # print("EXCEPTION - Parse 'passed':" + str(e))
         passed_no = 0
     try:
         error_string = (re.findall("[0-9]* error in", s))[0]
         error_no = int((re.findall("[0-9]*", error_string))[0])            
     except Exception, e:
-        print("EXCEPTION - Parse 'errors':" + str(e))
         error_no = 0
     return (failed_no, passed_no, error_no)
 
@@ -114,7 +120,6 @@ def save_output(d):
 	output_file = open(OUTPUT_FILENAME,'w')
 	output_file.write(s)
 
-
 # This is the main loop. On the first round, it gets the coverage results for
 # each test suite and stores them. It also saves a copy of the source code in a
 # temporary location. 
@@ -135,8 +140,7 @@ while c <= NUMBER_MUTATIONS:
             print("Suite file path: " + suite_file)
             print("Running coverage on: " + suite_file)
 
-            # If the first round, calculate the coverage for the test suite.
-            # Run coverage on the initial un-mutated files.
+            # RUN COVERAGE on the initial un-mutated files.
             try:
                 # Run the coverage process on the test suite
                 subprocess.check_output(["coverage","run","--source",source_folder,"-m","py.test", suite_file])
@@ -159,7 +163,8 @@ while c <= NUMBER_MUTATIONS:
             
             print("Number of test cases in suite: " + str(num_tests))
             print("Running tests on: " + suite_file)
-            # Run the test cases on initial source code to get benchmark results
+            
+            # RUN TESTS on initial source code to get benchmark results
             try:
                 test_result = subprocess.check_output(["py.test",suite_fname],cwd='tests')
             except subprocess.CalledProcessError as e:
@@ -176,6 +181,7 @@ while c <= NUMBER_MUTATIONS:
             
             # Dictionary to store results for each test suite
             result = {}
+            
             # Add results to results dictionary
             result['coverage'] = coverage
             result['num_tests'] = num_tests
@@ -187,38 +193,46 @@ while c <= NUMBER_MUTATIONS:
             # Record result in result dictionary
             record[suite_fname] = result
 
-    # Do mutation and collect test results.
+    # DO MUTATION and collect test results.
     else:
         mut_error = False
         print("----------Mutation round: " + str(c) + " -----------------")
+        
         # This attempts to mutate the source code. Run_mutation returns a bool
         # where true if a mutation is performed.
         mutation_performed = run_mutation(source_folder)
+        
         print("Mutation performed: " + str(mutation_performed))
+        
         # Run each test suite we have created
         for suite_fname in test_list:
             suite_file = test_path + suite_fname
-            # Increment the count of mutations if one is performed.
+            
             if mutation_performed:
+                # Increment the count of mutations if one is performed.
                 record[suite_fname]['num_muts'] = record[suite_fname]['num_muts'] + 1
             
             print("Running tests on: " + suite_file)
-            # Run tests using subprocess module.
+            
+            # RUN TESTS using subprocess module.
             try:
                 test_result = subprocess.check_output(["py.test","--tb=line",suite_fname],cwd='tests')
             except subprocess.CalledProcessError as e:
                 test_result = e.output.decode("utf-8")
-            # print(test_result)
+
             # Parse the results for the mutated source code.
             mutated_results = parse_test_results(test_result)
             
             print("Parsed results on mutated code: " + str(mutated_results))
+            
             # Get the number of failures on the mutated code for this test suite
             mutated_failed = mutated_results[0]
+            
             # Print test result if failed_no is 0. This is for debugging purposes.
             # If number of mutations failed is 0, it's likely an error has occured.
             if (mutated_failed == 0) and (not mut_error) :
-                print("--------------TEST RESULTS:---------------" + str(test_result))
+                print("--------------TEST RESULTS:---------------")
+                print(str(test_result))
                 mut_error = True
             
             print("***Mutation failures vs initial failures***")
